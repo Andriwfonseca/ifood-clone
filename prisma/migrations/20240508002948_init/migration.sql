@@ -4,7 +4,7 @@ CREATE TABLE "Restaurant" (
     "name" TEXT NOT NULL,
     "imageUrl" TEXT NOT NULL,
     "deliveryFee" DECIMAL(10,2) NOT NULL,
-    "deliveryTimeMinuts" INTEGER NOT NULL,
+    "deliveryTimeMinutes" INTEGER NOT NULL,
 
     CONSTRAINT "Restaurant_pkey" PRIMARY KEY ("id")
 );
@@ -22,7 +22,7 @@ CREATE TABLE "Category" (
 CREATE TABLE "Product" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "descrition" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "imageUrl" TEXT NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
     "discountPercentage" INTEGER NOT NULL DEFAULT 0,
