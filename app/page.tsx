@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Header from "./_components/header";
 import Search from "./_components/search";
-import CategoryList from "./_components/ui/category-list";
+import CategoryList from "./_components/category-list";
+import ProductList from "./_components/product-list";
+import { Button } from "./_components/ui/button";
+import { ChevronRightIcon } from "lucide-react";
 
 export default function Home() {
   return (
@@ -16,7 +19,7 @@ export default function Home() {
         <CategoryList />
       </div>
 
-      <div className="my-6 px-5">
+      <div className="px-5 pt-6">
         <Image
           src="/promo-banner-01.png"
           width={0}
@@ -26,6 +29,17 @@ export default function Home() {
           alt="Até 30% de desconto em pizzas"
           quality={100}
         />
+      </div>
+
+      <div className="space-y-4 pt-6">
+        <div className="flex items-center justify-between px-5">
+          <h2 className="font-semibold">Pedidos Recomendados</h2>
+          <Button className="h-fit p-0" variant="link">
+            Ver todos
+            <ChevronRightIcon size={16} />
+          </Button>
+        </div>
+        <ProductList />
       </div>
     </>
   );
