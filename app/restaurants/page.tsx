@@ -11,14 +11,19 @@ const Restaurants = () => {
   const searchParams = useSearchParams();
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
       const searchFor = searchParams.get("search");
       if (!searchFor) return;
 
+      setLoading(true);
+
       const foundRestaurants = await searchForRestaurants(searchFor);
       setRestaurants(foundRestaurants);
+
+      setLoading(false);
     };
 
     fetchRestaurants();
@@ -31,19 +36,21 @@ const Restaurants = () => {
       <div className="p-6 px-5">
         <h2 className="mb-6 text-lg font-semibold">Restaurantes Encontrados</h2>
 
-        <div className="flex w-full flex-col gap-6">
-          {restaurants.length > 0 &&
-            restaurants.map((restaurant) => (
-              <RestaurantItem
-                key={restaurant.id}
-                restaurant={restaurant}
-                className="min-w-full max-w-full"
-              />
-            ))}
-          {restaurants.length === 0 && (
-            <span>Nenhum restaurante encontrado.</span>
-          )}
-        </div>
+        {!loading && (
+          <div className="flex w-full flex-col gap-6">
+            {restaurants.length > 0 &&
+              restaurants.map((restaurant) => (
+                <RestaurantItem
+                  key={restaurant.id}
+                  restaurant={restaurant}
+                  className="min-w-full max-w-full"
+                />
+              ))}
+            {restaurants.length === 0 && (
+              <span>Nenhum restaurante encontrado.</span>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
