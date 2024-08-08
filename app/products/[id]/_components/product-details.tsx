@@ -27,7 +27,11 @@ import {
   formatCurrency,
 } from "@/app/_helpers/price";
 import { Prisma } from "@prisma/client";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ShoppingCartIcon,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useState } from "react";
@@ -50,7 +54,7 @@ const ProductDetails = ({
   complementaryProducts,
 }: ProductDetailsProps) => {
   const [quantity, setQuantity] = useState(1);
-  const { addProductToCart, products } = useContext(CartContext);
+  const { addProductToCart, products, totalQuantity } = useContext(CartContext);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
@@ -83,7 +87,7 @@ const ProductDetails = ({
 
   return (
     <>
-      <div className="relative z-50 mt-[-1.5rem] rounded-tl-3xl rounded-tr-3xl bg-white py-5">
+      <div className="relative mt-[-1.5rem] rounded-tl-3xl rounded-tr-3xl bg-white py-5">
         <Link href={`/restaurants/${product.restaurant.id}`}>
           <div className="flex items-center gap-[0.375rem] px-5">
             <div className="relative h-6 w-6">
@@ -163,6 +167,19 @@ const ProductDetails = ({
           </Button>
         </div>
       </div>
+
+      {totalQuantity > 0 && (
+        <Button
+          className="fixed right-4 top-4 z-[60px] rounded-full bg-red-500 text-foreground"
+          size="icon"
+          onClick={() => setIsCartOpen(true)}
+        >
+          <ShoppingCartIcon className="text-white" size={18} />
+          <div className="absolute bottom-[-7px] right-[-2px] w-6 rounded-full border border-solid bg-white text-sm font-normal">
+            {totalQuantity}
+          </div>
+        </Button>
+      )}
 
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
         <SheetContent className="w-[90vw]">
