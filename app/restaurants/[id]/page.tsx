@@ -1,4 +1,6 @@
-import { db } from "@/app/_lib/prisma";
+"use client";
+
+import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import RestaurantImage from "../_components/restaurant-image";
 import Image from "next/image";
@@ -6,6 +8,8 @@ import { StarIcon } from "lucide-react";
 import DeliveryInfo from "@/app/_components/delivery-info";
 import ProductList from "@/app/_components/product-list";
 import CartBanner from "../_components/cart-banner";
+import { getRestaurant } from "../_actions/get-restaurant";
+import { Category, Product, Restaurant } from "@prisma/client";
 
 interface RestaurantPageProps {
   params: {
@@ -13,43 +17,52 @@ interface RestaurantPageProps {
   };
 }
 
-const RestaurantPage = async ({ params: { id } }: RestaurantPageProps) => {
-  const restaurant = await db.restaurant.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      categories: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        include: {
-          products: {
-            where: {
-              restaurantId: id,
-            },
-            include: {
-              restaurant: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      products: {
-        take: 10,
-        include: {
-          restaurant: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
-  });
+interface RestaurantWithDetails extends Restaurant {
+  categories: (Category & {
+    products: (Product & {
+      restaurant: {
+        name: string;
+      };
+    })[];
+  })[];
+  products: (Product & {
+    restaurant: {
+      name: string;
+    };
+  })[];
+}
+
+const RestaurantPage = ({ params: { id } }: RestaurantPageProps) => {
+  const [restaurant, setRestaurant] = useState<RestaurantWithDetails | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      try {
+        const restaurantData = await getRestaurant(id);
+
+        if (!restaurantData) return notFound();
+
+        setRestaurant(restaurantData);
+      } catch (error) {
+        console.error("Failed to fetch restaurant:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurant();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   if (!restaurant) return notFound();
 
@@ -77,7 +90,7 @@ const RestaurantPage = async ({ params: { id } }: RestaurantPageProps) => {
       </div>
 
       <div className="px-5">
-        <DeliveryInfo restaurant={restaurant} />
+        <DeliveryInfo restaurant={restaurant!} />
       </div>
 
       <div className="mt-3 flex gap-4 overflow-x-scroll px-5 [&::-webkit-scrollbar]:hidden">
