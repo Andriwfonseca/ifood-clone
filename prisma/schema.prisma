@@ -7,80 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Restaurant {
-  id                  String     @id @default(uuid())
-  name                String
-  imageUrl            String
-  deliveryFee         Decimal    @db.Decimal(10, 2)
-  deliveryTimeMinutes Int
-  orders              Order[]
-  products            Product[]
-  categories          Category[] @relation("CategoryToRestaurant")
-}
-
-model Category {
-  id          String       @id @default(uuid())
-  name        String
-  imageUrl    String
-  createdAt   DateTime     @default(now())
-  products    Product[]
-  restaurants Restaurant[] @relation("CategoryToRestaurant")
-}
-
-model Product {
-  id                 String         @id @default(uuid())
-  name               String
-  description        String
-  imageUrl           String
-  price              Decimal        @db.Decimal(10, 2)
-  discountPercentage Int            @default(0)
-  restaurantId       String
-  categoryId         String
-  createdAt          DateTime       @default(now())
-  orderProducts      OrderProduct[]
-  category           Category       @relation(fields: [categoryId], references: [id])
-  restaurant         Restaurant     @relation(fields: [restaurantId], references: [id])
-}
-
-model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  accounts      Account[]
-  Authenticator Authenticator[]
-  orders        Order[]
-  sessions      Session[]
-}
-
-model OrderProduct {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  quantity  Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-model Order {
-  id             String         @id @default(uuid())
-  userId         String
-  restaurantId   String
-  deliveryFee    Decimal        @db.Decimal(10, 2)
-  deliveryTime   Int
-  subtotalPrice  Decimal        @db.Decimal(10, 2)
-  totalPrice     Decimal        @db.Decimal(10, 2)
-  totalDiscounts Decimal        @db.Decimal(10, 2)
-  createdAt      DateTime       @default(now())
-  status         OrderStatus
-  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id])
-  user           User           @relation(fields: [userId], references: [id])
-  products       OrderProduct[]
-}
-
 model Account {
   userId            String
   type              String
@@ -129,6 +55,92 @@ model Authenticator {
   user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Restaurant {
+  id                  String                   @id @default(uuid())
+  name                String
+  imageUrl            String
+  deliveryFee         Decimal                  @db.Decimal(10, 2)
+  deliveryTimeMinutes Int
+  orders              Order[]
+  products            Product[]
+  categories          Category[]               @relation("CategoryToRestaurant")
+  usersWhoFavorited   UserFavoriteRestaurant[]
+}
+
+model UserFavoriteRestaurant {
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@id([userId, restaurantId])
+}
+
+model Category {
+  id          String       @id @default(uuid())
+  name        String
+  imageUrl    String
+  createdAt   DateTime     @default(now())
+  products    Product[]
+  restaurants Restaurant[] @relation("CategoryToRestaurant")
+}
+
+model Product {
+  id                 String         @id @default(uuid())
+  name               String
+  description        String
+  imageUrl           String
+  price              Decimal        @db.Decimal(10, 2)
+  discountPercentage Int            @default(0)
+  restaurantId       String
+  categoryId         String
+  createdAt          DateTime       @default(now())
+  orderProducts      OrderProduct[]
+  category           Category       @relation(fields: [categoryId], references: [id])
+  restaurant         Restaurant     @relation(fields: [restaurantId], references: [id])
+}
+
+model User {
+  id                  String                   @id @default(cuid())
+  name                String?
+  email               String                   @unique
+  emailVerified       DateTime?
+  image               String?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  accounts            Account[]
+  Authenticator       Authenticator[]
+  orders              Order[]
+  sessions            Session[]
+  favoriteRestaurants UserFavoriteRestaurant[]
+}
+
+model OrderProduct {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id             String         @id @default(uuid())
+  userId         String
+  restaurantId   String
+  deliveryFee    Decimal        @db.Decimal(10, 2)
+  deliveryTime   Int
+  subtotalPrice  Decimal        @db.Decimal(10, 2)
+  totalPrice     Decimal        @db.Decimal(10, 2)
+  totalDiscounts Decimal        @db.Decimal(10, 2)
+  createdAt      DateTime       @default(now())
+  status         OrderStatus
+  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+  products       OrderProduct[]
 }
 
 enum OrderStatus {
